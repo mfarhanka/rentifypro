@@ -18,6 +18,7 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
 	$routes->get('customers', 'CustomerController::index');
 	$routes->get('customers/create', 'CustomerController::create');
 	$routes->post('customers', 'CustomerController::store');
+	$routes->post('customers/(:num)/setup-link', 'CustomerController::regenerateSetupLink/$1');
 	$routes->get('staff', 'StaffController::index');
 	$routes->get('staff/create', 'StaffController::create');
 	$routes->post('staff', 'StaffController::store');

@@ -129,6 +129,34 @@ class CustomerController extends BaseController
         return redirect()->to(site_url('login'))->with('message', 'Password created. You can now sign in with your email or phone number.');
     }
 
+    public function regenerateSetupLink(int $id): RedirectResponse
+    {
+        if ($redirect = $this->requireGroups(['admin', 'staff'])) {
+            return $redirect;
+        }
+
+        $contact = $this->customerContactByUserId($id);
+
+        if ($contact === null) {
+            return redirect()->to(site_url('customers'))->with('error', 'Customer account not found.');
+        }
+
+        if ($contact['password_set_at'] !== null) {
+            return redirect()->to(site_url('customers'))->with('error', 'This customer has already completed password setup.');
+        }
+
+        $setupToken = bin2hex(random_bytes(32));
+
+        db_connect()->table('customer_contacts')
+            ->where('id', $contact['id'])
+            ->update([
+                'setup_token' => $setupToken,
+                'updated_at'  => date('Y-m-d H:i:s'),
+            ]);
+
+        return redirect()->to(site_url('customers'))->with('message', 'New setup link generated: ' . $this->setupUrl($setupToken));
+    }
+
     /**
      * @param array<string, mixed> $input
      * @return array<string, string>
@@ -203,6 +231,18 @@ class CustomerController extends BaseController
     /**
      * @return array<string, mixed>|null
      */
+    private function customerContactByUserId(int $userId): ?array
+    {
+        return db_connect()->table('customer_contacts')
+            ->select('id, user_id, email, phone, setup_token, password_set_at')
+            ->where('user_id', $userId)
+            ->get()
+            ->getRowArray();
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
     private function pendingCustomerContact(string $token): ?array
     {
         $contact = db_connect()->table('customer_contacts')
@@ -226,6 +266,11 @@ class CustomerController extends BaseController
     private function normalizePhone(string $phone): string
     {
         return preg_replace('/\D+/', '', trim($phone)) ?? '';
+    }
+
+    private function setupUrl(string $token): string
+    {
+        return site_url('customers/setup/' . $token);
     }
 
     private function generateCustomerUsername(string $seed): string
