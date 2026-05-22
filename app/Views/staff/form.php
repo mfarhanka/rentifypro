@@ -8,6 +8,7 @@
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>
+<?php $staffIndexUrl = site_url('staff'); ?>
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card page-card">
@@ -41,7 +42,7 @@
                         </div>
                     <?php endif ?>
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="/staff" class="btn btn-outline-secondary">Back</a>
+                        <a href="<?= esc($staffIndexUrl) ?>" class="btn btn-outline-secondary">Back</a>
                         <button type="submit" class="btn btn-primary">Save staff</button>
                     </div>
                 </form>

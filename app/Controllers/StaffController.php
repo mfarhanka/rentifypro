@@ -27,7 +27,7 @@ class StaffController extends BaseController
 
         return view('staff/form', [
             'title'       => 'Add Staff Account',
-            'action'      => '/staff',
+            'action'      => site_url('staff'),
             'staffMember' => null,
         ]);
     }
@@ -56,7 +56,7 @@ class StaffController extends BaseController
         $createdUser = $userModel->findByCredentials(['email' => strtolower((string) $input['email'])]);
         $createdUser?->syncGroups('staff');
 
-        return redirect()->to('/staff')->with('message', 'Staff account created.');
+        return redirect()->to(site_url('staff'))->with('message', 'Staff account created.');
     }
 
     public function edit(int $id): string|RedirectResponse
@@ -68,12 +68,12 @@ class StaffController extends BaseController
         $staffMember = $this->findStaffMember($id);
 
         if ($staffMember === null) {
-            return redirect()->to('/staff')->with('error', 'Staff member not found.');
+            return redirect()->to(site_url('staff'))->with('error', 'Staff member not found.');
         }
 
         return view('staff/form', [
             'title'       => 'Edit Staff Account',
-            'action'      => '/staff/' . $id,
+            'action'      => site_url('staff/' . $id),
             'staffMember' => $staffMember,
         ]);
     }
@@ -87,7 +87,7 @@ class StaffController extends BaseController
         $staffMember = $this->findStaffMember($id);
 
         if ($staffMember === null) {
-            return redirect()->to('/staff')->with('error', 'Staff member not found.');
+            return redirect()->to(site_url('staff'))->with('error', 'Staff member not found.');
         }
 
         $input = $this->request->getPost(['username', 'email', 'password', 'password_confirm']);
@@ -112,7 +112,7 @@ class StaffController extends BaseController
         $refreshedUser = $userModel->withGroups()->find($staffMember->id);
         $refreshedUser?->syncGroups('staff');
 
-        return redirect()->to('/staff')->with('message', 'Staff account updated.');
+        return redirect()->to(site_url('staff'))->with('message', 'Staff account updated.');
     }
 
     public function toggleSuspend(int $id): RedirectResponse
@@ -124,7 +124,7 @@ class StaffController extends BaseController
         $staffMember = $this->findStaffMember($id);
 
         if ($staffMember === null) {
-            return redirect()->to('/staff')->with('error', 'Staff member not found.');
+            return redirect()->to(site_url('staff'))->with('error', 'Staff member not found.');
         }
 
         $newActive = $staffMember->active ? 0 : 1;
@@ -132,7 +132,7 @@ class StaffController extends BaseController
 
         $message = $newActive === 1 ? 'Staff account reactivated.' : 'Staff account suspended.';
 
-        return redirect()->to('/staff')->with('message', $message);
+        return redirect()->to(site_url('staff'))->with('message', $message);
     }
 
     public function delete(int $id): RedirectResponse
@@ -144,12 +144,12 @@ class StaffController extends BaseController
         $staffMember = $this->findStaffMember($id);
 
         if ($staffMember === null) {
-            return redirect()->to('/staff')->with('error', 'Staff member not found.');
+            return redirect()->to(site_url('staff'))->with('error', 'Staff member not found.');
         }
 
         model(UserModel::class)->delete($staffMember->id, true);
 
-        return redirect()->to('/staff')->with('message', 'Staff account removed.');
+        return redirect()->to(site_url('staff'))->with('message', 'Staff account removed.');
     }
 
     /**
