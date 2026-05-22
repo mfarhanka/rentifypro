@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var string $title
+ * @var string $action
+ * @var array<string, mixed>|null $gadget
+ */
+?>
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>

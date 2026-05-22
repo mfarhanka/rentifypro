@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpIllegalPsrClassPathInspection */
+
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;

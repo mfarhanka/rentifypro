@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var string $role
+ * @var list<array<string, mixed>> $rentals
+ */
+?>
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>

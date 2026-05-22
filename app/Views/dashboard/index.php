@@ -1,3 +1,11 @@
+<?php
+/**
+ * @var string $role
+ * @var array<string, mixed> $stats
+ * @var list<array<string, mixed>> $recentRentals
+ * @var list<array<string, mixed>> $gadgets
+ */
+?>
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>

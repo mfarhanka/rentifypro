@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var list<array<string, mixed>> $gadgets
+ * @var int $selectedId
+ */
+?>
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>

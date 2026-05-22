@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var array<string, mixed> $rental
+ */
+?>
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>
