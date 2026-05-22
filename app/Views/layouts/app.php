@@ -55,6 +55,12 @@
 <body>
 <?php $user = auth()->user(); ?>
 <?php $role = 'Guest'; ?>
+<?php $dashboardUrl = site_url('dashboard'); ?>
+<?php $staffUrl = site_url('staff'); ?>
+<?php $gadgetsUrl = site_url('gadgets'); ?>
+<?php $rentalsUrl = site_url('rentals'); ?>
+<?php $newRentalUrl = site_url('rentals/create'); ?>
+<?php $logoutUrl = site_url('logout'); ?>
 <?php if ($user !== null) : ?>
     <?php if ($user->inGroup('admin')) : ?>
         <?php $role = 'Admin'; ?>
@@ -67,28 +73,28 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="/dashboard">RENTIFY PRO</a>
+        <a class="navbar-brand" href="<?= esc($dashboardUrl) ?>">RENTIFY PRO</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= esc($dashboardUrl) ?>">Dashboard</a></li>
                 <?php if ($user !== null && $user->inGroup('admin')) : ?>
-                    <li class="nav-item"><a class="nav-link" href="/staff">Staff</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= esc($staffUrl) ?>">Staff</a></li>
                 <?php endif ?>
-                <li class="nav-item"><a class="nav-link" href="/gadgets">Gadgets</a></li>
-                <li class="nav-item"><a class="nav-link" href="/rentals">Rentals</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= esc($gadgetsUrl) ?>">Gadgets</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= esc($rentalsUrl) ?>">Rentals</a></li>
                 <?php if ($user !== null && $user->inGroup('customer')) : ?>
-                    <li class="nav-item"><a class="nav-link" href="/rentals/create">New Rental</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= esc($newRentalUrl) ?>">New Rental</a></li>
                 <?php endif ?>
             </ul>
             <span class="navbar-text text-light mr-3">
                 <?= esc($user?->username ?? 'Guest') ?> <span class="badge badge-light"><?= esc($role) ?></span>
             </span>
             <?php if ($user !== null) : ?>
-                <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+                <a href="<?= esc($logoutUrl) ?>" class="btn btn-outline-light btn-sm">Logout</a>
             <?php endif ?>
         </div>
     </div>
