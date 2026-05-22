@@ -34,11 +34,11 @@
                     <div class="alert alert-success"><?= esc(session('message')) ?></div>
                 <?php endif ?>
 
-                <form action="<?= url_to('login') ?>" method="post">
+                <form action="<?= esc(site_url('login')) ?>" method="post">
                     <?= csrf_field() ?>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" required>
+                        <label for="identifier">Email or phone</label>
+                        <input type="text" class="form-control" id="identifier" name="identifier" value="<?= old('identifier') ?>" required>
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
@@ -56,6 +56,7 @@
                 <?php if (setting('Auth.allowRegistration')) : ?>
                     <p class="text-muted text-center mt-4 mb-0">Need an account? <a href="<?= url_to('register') ?>">Create one</a></p>
                 <?php endif ?>
+                <p class="text-muted text-center mt-2 mb-0">If staff created your account, use the setup link they shared to create your password first.</p>
             </div>
         </div>
     </div>

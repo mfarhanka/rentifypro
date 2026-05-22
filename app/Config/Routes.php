@@ -6,6 +6,10 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Home::index');
+$routes->get('login', 'AuthController::loginView', ['as' => 'login']);
+$routes->post('login', 'AuthController::loginAction');
+$routes->get('customers/setup/(:segment)', 'CustomerController::setup/$1');
+$routes->post('customers/setup/(:segment)', 'CustomerController::completeSetup/$1');
 
 service('auth')->routes($routes);
 

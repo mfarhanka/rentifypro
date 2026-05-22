@@ -2,7 +2,6 @@
 /**
  * @var string $title
  * @var string $action
- * @var \CodeIgniter\Shield\Entities\User|null $customer
  */
 ?>
 <?= $this->extend('layouts/app') ?>
@@ -18,24 +17,15 @@
                     <?= csrf_field() ?>
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="username">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" value="<?= esc(old('username', $customer?->username ?? '')) ?>" required>
-                        </div>
-                        <div class="form-group col-md-6">
                             <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="<?= esc(old('email', $customer?->email ?? '')) ?>" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="email" class="form-control" id="email" name="email" value="<?= esc(old('email')) ?>">
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="password_confirm">Confirm password</label>
-                            <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+                            <label for="phone">Phone</label>
+                            <input type="text" class="form-control" id="phone" name="phone" value="<?= esc(old('phone')) ?>" placeholder="e.g. 08123456789">
                         </div>
                     </div>
+                    <p class="text-muted small">Provide either email or phone. The customer will create their own password from a setup link after the account is created.</p>
                     <div class="d-flex justify-content-between align-items-center">
                         <a href="<?= esc($customersIndexUrl) ?>" class="btn btn-outline-secondary">Back</a>
                         <button type="submit" class="btn btn-primary">Save customer</button>
