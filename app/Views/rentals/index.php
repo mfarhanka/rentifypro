@@ -7,13 +7,14 @@
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>
+<?php $rentalsCreateUrl = site_url('rentals/create'); ?>
 <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-4">
     <div>
         <h1 class="h2 mb-1">Rental records</h1>
         <p class="text-muted mb-0"><?= $role === 'customer' ? 'Your rental history and invoices.' : 'Track requests, approvals, returns, and invoice status.' ?></p>
     </div>
     <?php if ($role === 'customer') : ?>
-        <a href="/rentals/create" class="btn btn-primary mt-3 mt-lg-0">New rental</a>
+        <a href="<?= esc($rentalsCreateUrl) ?>" class="btn btn-primary mt-3 mt-lg-0">New rental</a>
     <?php endif ?>
 </div>
 
@@ -45,9 +46,9 @@
                             <td>$<?= number_format((float) $rental['total_amount'], 2) ?></td>
                             <td><span class="badge badge-<?= $rental['status'] === 'approved' ? 'success' : ($rental['status'] === 'pending' ? 'warning' : 'secondary') ?>"><?= esc(ucfirst($rental['status'])) ?></span></td>
                             <td class="text-right">
-                                <a href="/rentals/<?= esc((string) $rental['id']) ?>/invoice" class="btn btn-sm btn-outline-secondary">Invoice</a>
+                                <a href="<?= esc(site_url('rentals/' . (string) $rental['id'] . '/invoice')) ?>" class="btn btn-sm btn-outline-secondary">Invoice</a>
                                 <?php if (in_array($role, ['admin', 'staff'], true)) : ?>
-                                    <form action="/rentals/<?= esc((string) $rental['id']) ?>/status" method="post" class="d-inline-block ml-2">
+                                    <form action="<?= esc(site_url('rentals/' . (string) $rental['id'] . '/status')) ?>" method="post" class="d-inline-block ml-2">
                                         <?= csrf_field() ?>
                                         <div class="input-group input-group-sm">
                                             <select class="custom-select" name="status">

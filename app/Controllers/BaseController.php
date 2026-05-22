@@ -80,7 +80,7 @@ abstract class BaseController extends Controller
     protected function requireGroups(array $groups): ?RedirectResponse
     {
         if ($this->currentUser === null) {
-            return redirect()->to('/login');
+            return redirect()->to(site_url('login'));
         }
 
         foreach ($groups as $group) {
@@ -89,6 +89,6 @@ abstract class BaseController extends Controller
             }
         }
 
-        return redirect()->to('/dashboard')->with('error', 'You do not have access to that page.');
+        return redirect()->to(site_url('dashboard'))->with('error', 'You do not have access to that page.');
     }
 }

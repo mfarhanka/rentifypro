@@ -25,7 +25,7 @@ class GadgetController extends BaseController
 
         return view('gadgets/form', [
             'title'  => 'Add Gadget',
-            'action' => '/gadgets',
+            'action' => site_url('gadgets'),
             'gadget' => null,
         ]);
     }
@@ -61,7 +61,7 @@ class GadgetController extends BaseController
             'description'     => (string) $this->request->getPost('description'),
         ]);
 
-        return redirect()->to('/gadgets')->with('message', 'Gadget added successfully.');
+        return redirect()->to(site_url('gadgets'))->with('message', 'Gadget added successfully.');
     }
 
     public function edit(int $id): string|RedirectResponse
@@ -74,12 +74,12 @@ class GadgetController extends BaseController
         $gadget      = $gadgetModel->find($id);
 
         if ($gadget === null) {
-            return redirect()->to('/gadgets')->with('error', 'Gadget not found.');
+            return redirect()->to(site_url('gadgets'))->with('error', 'Gadget not found.');
         }
 
         return view('gadgets/form', [
             'title'  => 'Edit Gadget',
-            'action' => '/gadgets/' . $id,
+            'action' => site_url('gadgets/' . $id),
             'gadget' => $gadget,
         ]);
     }
@@ -94,7 +94,7 @@ class GadgetController extends BaseController
         $gadget      = $gadgetModel->find($id);
 
         if ($gadget === null) {
-            return redirect()->to('/gadgets')->with('error', 'Gadget not found.');
+            return redirect()->to(site_url('gadgets'))->with('error', 'Gadget not found.');
         }
 
         $rules = [
@@ -124,6 +124,6 @@ class GadgetController extends BaseController
             'description'     => (string) $this->request->getPost('description'),
         ]);
 
-        return redirect()->to('/gadgets')->with('message', 'Gadget updated successfully.');
+        return redirect()->to(site_url('gadgets'))->with('message', 'Gadget updated successfully.');
     }
 }

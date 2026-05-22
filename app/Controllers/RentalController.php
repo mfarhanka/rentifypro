@@ -109,7 +109,7 @@ class RentalController extends BaseController
 
         $db->transComplete();
 
-        return redirect()->to('/rentals')->with('message', 'Rental request submitted and invoice generated.');
+        return redirect()->to(site_url('rentals'))->with('message', 'Rental request submitted and invoice generated.');
     }
 
     public function updateStatus(int $id): RedirectResponse
@@ -120,7 +120,7 @@ class RentalController extends BaseController
 
         $status = (string) $this->request->getPost('status');
         if (! in_array($status, ['pending', 'approved', 'returned', 'cancelled'], true)) {
-            return redirect()->to('/rentals')->with('error', 'Invalid rental status.');
+            return redirect()->to(site_url('rentals'))->with('error', 'Invalid rental status.');
         }
 
         $rentalModel = model(RentalModel::class);
@@ -128,12 +128,12 @@ class RentalController extends BaseController
         $rental      = $rentalModel->find($id);
 
         if ($rental === null) {
-            return redirect()->to('/rentals')->with('error', 'Rental not found.');
+            return redirect()->to(site_url('rentals'))->with('error', 'Rental not found.');
         }
 
         $gadget = $gadgetModel->find($rental['gadget_id']);
         if ($gadget === null) {
-            return redirect()->to('/rentals')->with('error', 'Related gadget not found.');
+            return redirect()->to(site_url('rentals'))->with('error', 'Related gadget not found.');
         }
 
         $oldClosed = in_array($rental['status'], ['returned', 'cancelled'], true);
@@ -151,7 +151,7 @@ class RentalController extends BaseController
             if ((int) $gadget['available_stock'] < (int) $rental['quantity']) {
                 $db->transRollback();
 
-                return redirect()->to('/rentals')->with('error', 'Not enough stock to reopen this rental.');
+                return redirect()->to(site_url('rentals'))->with('error', 'Not enough stock to reopen this rental.');
             }
 
             $gadgetModel->update($gadget['id'], [
@@ -168,7 +168,7 @@ class RentalController extends BaseController
 
         $db->transComplete();
 
-        return redirect()->to('/rentals')->with('message', 'Rental status updated.');
+        return redirect()->to(site_url('rentals'))->with('message', 'Rental status updated.');
     }
 
     public function invoice(int $id): string|RedirectResponse
@@ -180,11 +180,11 @@ class RentalController extends BaseController
             ->first();
 
         if ($rental === null) {
-            return redirect()->to('/rentals')->with('error', 'Invoice not found.');
+            return redirect()->to(site_url('rentals'))->with('error', 'Invoice not found.');
         }
 
         if ($this->primaryRole() === 'customer' && (int) $rental['customer_id'] !== (int) $this->user()->id) {
-            return redirect()->to('/rentals')->with('error', 'You do not have access to that invoice.');
+            return redirect()->to(site_url('rentals'))->with('error', 'You do not have access to that invoice.');
         }
 
         return view('rentals/invoice', [

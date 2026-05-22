@@ -9,9 +9,9 @@ class Home extends BaseController
     public function index(): RedirectResponse
     {
         if (auth()->loggedIn()) {
-            return redirect()->to('/dashboard');
+            return redirect()->to(site_url('dashboard'));
         }
 
-        return redirect()->to('/login');
+        return redirect()->to(site_url('login'));
     }
 }

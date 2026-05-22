@@ -7,13 +7,15 @@
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>
+<?php $gadgetsCreateUrl = site_url('gadgets/create'); ?>
+<?php $rentalsCreateBaseUrl = site_url('rentals/create'); ?>
 <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-4">
     <div>
         <h1 class="h2 mb-1">Gadget catalog</h1>
         <p class="text-muted mb-0">Current stock levels and daily rental rates.</p>
     </div>
     <?php if (in_array($role, ['admin', 'staff'], true)) : ?>
-        <a href="/gadgets/create" class="btn btn-primary mt-3 mt-lg-0">Add gadget</a>
+        <a href="<?= esc($gadgetsCreateUrl) ?>" class="btn btn-primary mt-3 mt-lg-0">Add gadget</a>
     <?php endif ?>
 </div>
 
@@ -35,10 +37,10 @@
                         <strong>$<?= number_format((float) $gadget['daily_rate'], 2) ?>/day</strong>
                         <div>
                             <?php if (in_array($role, ['admin', 'staff'], true)) : ?>
-                                <a href="/gadgets/<?= esc((string) $gadget['id']) ?>/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="<?= esc(site_url('gadgets/' . (string) $gadget['id'] . '/edit')) ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                             <?php endif ?>
                             <?php if ($role === 'customer' && (int) $gadget['available_stock'] > 0) : ?>
-                                <a href="/rentals/create?gadget=<?= esc((string) $gadget['id']) ?>" class="btn btn-sm btn-primary">Rent now</a>
+                                <a href="<?= esc($rentalsCreateBaseUrl . '?gadget=' . rawurlencode((string) $gadget['id'])) ?>" class="btn btn-sm btn-primary">Rent now</a>
                             <?php endif ?>
                         </div>
                     </div>

@@ -8,6 +8,7 @@
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>
+<?php $gadgetsIndexUrl = site_url('gadgets'); ?>
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card page-card">
@@ -44,7 +45,7 @@
                         <textarea class="form-control" id="description" name="description" rows="4"><?= esc(old('description', $gadget['description'] ?? '')) ?></textarea>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="/gadgets" class="btn btn-outline-secondary">Back</a>
+                        <a href="<?= esc($gadgetsIndexUrl) ?>" class="btn btn-outline-secondary">Back</a>
                         <button type="submit" class="btn btn-primary">Save gadget</button>
                     </div>
                 </form>

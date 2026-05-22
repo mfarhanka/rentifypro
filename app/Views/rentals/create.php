@@ -7,6 +7,8 @@
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>
+<?php $rentalsIndexUrl = site_url('rentals'); ?>
+<?php $rentalsStoreUrl = site_url('rentals'); ?>
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card page-card">
@@ -19,7 +21,7 @@
                     <span class="badge badge-soft px-3 py-2">Customer access</span>
                 </div>
 
-                <form action="/rentals" method="post">
+                <form action="<?= esc($rentalsStoreUrl) ?>" method="post">
                     <?= csrf_field() ?>
                     <div class="form-group">
                         <label for="gadget_id">Gadget</label>
@@ -51,7 +53,7 @@
                         <textarea class="form-control" id="notes" name="notes" rows="4" placeholder="Optional delivery or usage notes"><?= esc(old('notes')) ?></textarea>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="/rentals" class="btn btn-outline-secondary">Back</a>
+                        <a href="<?= esc($rentalsIndexUrl) ?>" class="btn btn-outline-secondary">Back</a>
                         <button type="submit" class="btn btn-primary">Submit rental</button>
                     </div>
                 </form>

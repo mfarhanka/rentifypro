@@ -9,6 +9,9 @@
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>
+<?php $rentalsUrl = site_url('rentals'); ?>
+<?php $gadgetsUrl = site_url('gadgets'); ?>
+<?php $rentalsCreateBaseUrl = site_url('rentals/create'); ?>
 <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-4">
     <div>
         <span class="badge badge-soft px-3 py-2 mb-2"><?= ucfirst(esc($role)) ?> workspace</span>
@@ -16,8 +19,8 @@
         <p class="text-muted mb-0">Track gadget availability, customer bookings, and invoice totals from one panel.</p>
     </div>
     <div class="mt-3 mt-lg-0">
-        <a href="/rentals" class="btn btn-outline-primary mr-2">View rentals</a>
-        <a href="/gadgets" class="btn btn-primary">Browse gadgets</a>
+        <a href="<?= esc($rentalsUrl) ?>" class="btn btn-outline-primary mr-2">View rentals</a>
+        <a href="<?= esc($gadgetsUrl) ?>" class="btn btn-primary">Browse gadgets</a>
     </div>
 </div>
 
@@ -74,7 +77,7 @@
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="h4 mb-0">Recent rentals</h2>
-                    <a href="/rentals" class="btn btn-sm btn-outline-secondary">All rentals</a>
+                    <a href="<?= esc($rentalsUrl) ?>" class="btn btn-sm btn-outline-secondary">All rentals</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
@@ -92,7 +95,7 @@
                             <?php endif ?>
                             <?php foreach ($recentRentals as $rental) : ?>
                                 <tr>
-                                    <td><a href="/rentals/<?= esc((string) $rental['id']) ?>/invoice"><?= esc($rental['invoice_number']) ?></a></td>
+                                    <td><a href="<?= esc(site_url('rentals/' . (string) $rental['id'] . '/invoice')) ?>"><?= esc($rental['invoice_number']) ?></a></td>
                                     <td><?= esc($rental['customer_name']) ?></td>
                                     <td><?= esc($rental['gadget_name']) ?></td>
                                     <td><span class="badge badge-<?= $rental['status'] === 'approved' ? 'success' : ($rental['status'] === 'pending' ? 'warning' : 'secondary') ?>"><?= esc(ucfirst($rental['status'])) ?></span></td>
@@ -109,7 +112,7 @@
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="h4 mb-0">Available gadgets</h2>
-                    <a href="/gadgets" class="btn btn-sm btn-outline-secondary">Catalog</a>
+                    <a href="<?= esc($gadgetsUrl) ?>" class="btn btn-sm btn-outline-secondary">Catalog</a>
                 </div>
                 <?php foreach ($gadgets as $gadget) : ?>
                     <div class="border rounded-lg p-3 mb-3 bg-white">
@@ -123,7 +126,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <strong>$<?= number_format((float) $gadget['daily_rate'], 2) ?>/day</strong>
                             <?php if ($role === 'customer') : ?>
-                                <a href="/rentals/create?gadget=<?= esc((string) $gadget['id']) ?>" class="btn btn-sm btn-primary">Rent</a>
+                                <a href="<?= esc($rentalsCreateBaseUrl . '?gadget=' . rawurlencode((string) $gadget['id'])) ?>" class="btn btn-sm btn-primary">Rent</a>
                             <?php endif ?>
                         </div>
                     </div>

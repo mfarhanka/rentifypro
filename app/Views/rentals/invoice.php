@@ -6,6 +6,7 @@
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('content') ?>
+<?php $rentalsIndexUrl = site_url('rentals'); ?>
 <div class="row justify-content-center">
     <div class="col-xl-9">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -77,7 +78,7 @@
                         <p class="mb-0"><?= esc($rental['notes'] ?: 'No additional notes for this rental.') ?></p>
                     </div>
                     <div class="col-md-4 text-md-right mt-4 mt-md-0">
-                        <a href="/rentals" class="btn btn-outline-secondary">Back to rentals</a>
+                        <a href="<?= esc($rentalsIndexUrl) ?>" class="btn btn-outline-secondary">Back to rentals</a>
                     </div>
                 </div>
             </div>
