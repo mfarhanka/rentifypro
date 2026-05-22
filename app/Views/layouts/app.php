@@ -56,6 +56,7 @@
 <?php $user = auth()->user(); ?>
 <?php $role = 'Guest'; ?>
 <?php $dashboardUrl = site_url('dashboard'); ?>
+<?php $customersUrl = site_url('customers'); ?>
 <?php $staffUrl = site_url('staff'); ?>
 <?php $gadgetsUrl = site_url('gadgets'); ?>
 <?php $rentalsUrl = site_url('rentals'); ?>
@@ -81,6 +82,9 @@
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item"><a class="nav-link" href="<?= esc($dashboardUrl) ?>">Dashboard</a></li>
+                <?php if ($user !== null && ( $user->inGroup('admin') || $user->inGroup('staff') )) : ?>
+                    <li class="nav-item"><a class="nav-link" href="<?= esc($customersUrl) ?>">Customers</a></li>
+                <?php endif ?>
                 <?php if ($user !== null && $user->inGroup('admin')) : ?>
                     <li class="nav-item"><a class="nav-link" href="<?= esc($staffUrl) ?>">Staff</a></li>
                 <?php endif ?>
