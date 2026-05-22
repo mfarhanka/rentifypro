@@ -11,6 +11,13 @@ service('auth')->routes($routes);
 
 $routes->group('', ['filter' => 'session'], static function ($routes) {
 	$routes->get('dashboard', 'Dashboard::index');
+	$routes->get('staff', 'StaffController::index');
+	$routes->get('staff/create', 'StaffController::create');
+	$routes->post('staff', 'StaffController::store');
+	$routes->get('staff/(:num)/edit', 'StaffController::edit/$1');
+	$routes->post('staff/(:num)', 'StaffController::update/$1');
+	$routes->post('staff/(:num)/suspend', 'StaffController::toggleSuspend/$1');
+	$routes->post('staff/(:num)/delete', 'StaffController::delete/$1');
 
 	$routes->get('gadgets', 'GadgetController::index');
 	$routes->get('gadgets/create', 'GadgetController::create');

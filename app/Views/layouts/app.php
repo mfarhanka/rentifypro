@@ -75,6 +75,9 @@
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                <?php if ($user !== null && $user->inGroup('admin')) : ?>
+                    <li class="nav-item"><a class="nav-link" href="/staff">Staff</a></li>
+                <?php endif ?>
                 <li class="nav-item"><a class="nav-link" href="/gadgets">Gadgets</a></li>
                 <li class="nav-item"><a class="nav-link" href="/rentals">Rentals</a></li>
                 <?php if ($user !== null && $user->inGroup('customer')) : ?>
