@@ -43,7 +43,7 @@
                             <td><?= esc($rental['customer_name']) ?></td>
                             <td><?= esc($rental['gadget_name']) ?></td>
                             <td><?= esc($rental['start_date']) ?> to <?= esc($rental['end_date']) ?></td>
-                            <td>$<?= number_format((float) $rental['total_amount'], 2) ?></td>
+                            <td>RM <?= esc(number_format((float) $rental['total_amount'], 2)) ?></td>
                             <td><span class="badge badge-<?= $rental['status'] === 'approved' ? 'success' : ($rental['status'] === 'pending' ? 'warning' : 'secondary') ?>"><?= esc(ucfirst($rental['status'])) ?></span></td>
                             <td class="text-right">
                                 <a href="<?= esc(site_url('rentals/' . (string) $rental['id'] . '/invoice')) ?>" class="btn btn-sm btn-outline-secondary">Invoice</a>

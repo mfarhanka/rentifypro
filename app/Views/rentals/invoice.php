@@ -59,14 +59,14 @@
                                 <td><?= esc($rental['gadget_name']) ?> rental<br><small class="text-muted"><?= esc($rental['start_date']) ?> to <?= esc($rental['end_date']) ?></small></td>
                                 <td><?= esc((string) $rental['quantity']) ?></td>
                                 <td><?= esc((string) $rental['rental_days']) ?></td>
-                                <td>$<?= number_format((float) $rental['daily_rate'], 2) ?></td>
-                                <td class="text-right">$<?= number_format((float) $rental['total_amount'], 2) ?></td>
+                                <td>RM <?= esc(number_format((float) $rental['daily_rate'], 2)) ?></td>
+                                <td class="text-right">RM <?= esc(number_format((float) $rental['total_amount'], 2)) ?></td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="4" class="text-right">Total</th>
-                                <th class="text-right">$<?= number_format((float) $rental['total_amount'], 2) ?></th>
+                                <th class="text-right">RM <?= esc(number_format((float) $rental['total_amount'], 2)) ?></th>
                             </tr>
                         </tfoot>
                     </table>

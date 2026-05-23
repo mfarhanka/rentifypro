@@ -34,7 +34,7 @@
                     </div>
                     <p class="text-muted flex-grow-1"><?= esc($gadget['description']) ?></p>
                     <div class="d-flex justify-content-between align-items-center mt-3">
-                        <strong>$<?= number_format((float) $gadget['daily_rate'], 2) ?>/day</strong>
+                        <strong>RM <?= esc(number_format((float) $gadget['daily_rate'], 2)) ?>/day</strong>
                         <div>
                             <?php if (in_array($role, ['admin', 'staff'], true)) : ?>
                                 <a href="<?= esc(site_url('gadgets/' . (string) $gadget['id'] . '/edit')) ?>" class="btn btn-sm btn-outline-primary">Edit</a>

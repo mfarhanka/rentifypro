@@ -47,7 +47,7 @@
                 <p class="text-muted mb-1"><?= esc($stats['labelThree']) ?></p>
                 <h2 class="display-4 mb-0">
                     <?php if (str_contains(strtolower($stats['labelThree']), 'invoice') || strtolower($stats['labelFour']) === 'revenue') : ?>
-                        $<?= number_format((float) $stats['valueThree'], 2) ?>
+                        RM <?= esc(number_format((float) $stats['valueThree'], 2)) ?>
                     <?php else : ?>
                         <?= esc((string) $stats['valueThree']) ?>
                     <?php endif ?>
@@ -61,7 +61,7 @@
                 <p class="text-muted mb-1"><?= esc($stats['labelFour']) ?></p>
                 <h2 class="display-4 mb-0">
                     <?php if (strtolower($stats['labelFour']) === 'revenue') : ?>
-                        $<?= number_format((float) $stats['valueFour'], 2) ?>
+                        RM <?= esc(number_format((float) $stats['valueFour'], 2)) ?>
                     <?php else : ?>
                         <?= esc((string) $stats['valueFour']) ?>
                     <?php endif ?>
@@ -124,7 +124,7 @@
                             <span class="badge badge-soft"><?= esc((string) $gadget['available_stock']) ?> available</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <strong>$<?= number_format((float) $gadget['daily_rate'], 2) ?>/day</strong>
+                            <strong>RM <?= esc(number_format((float) $gadget['daily_rate'], 2)) ?>/day</strong>
                             <?php if ($role === 'customer') : ?>
                                 <a href="<?= esc($rentalsCreateBaseUrl . '?gadget=' . rawurlencode((string) $gadget['id'])) ?>" class="btn btn-sm btn-primary">Rent</a>
                             <?php endif ?>

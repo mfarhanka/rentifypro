@@ -29,7 +29,7 @@
                             <option value="">Select a gadget</option>
                             <?php foreach ($gadgets as $gadget) : ?>
                                 <option value="<?= esc((string) $gadget['id']) ?>" <?= (string) old('gadget_id', (string) $selectedId) === (string) $gadget['id'] ? 'selected' : '' ?>>
-                                    <?= esc($gadget['name']) ?> - <?= esc($gadget['brand']) ?> ($<?= number_format((float) $gadget['daily_rate'], 2) ?>/day, <?= esc((string) $gadget['available_stock']) ?> available)
+                                    <?= esc($gadget['name']) ?> - <?= esc($gadget['brand']) ?> (RM <?= esc(number_format((float) $gadget['daily_rate'], 2)) ?>/day, <?= esc((string) $gadget['available_stock']) ?> available)
                                 </option>
                             <?php endforeach ?>
                         </select>
