@@ -17,6 +17,8 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
 	$routes->get('dashboard', 'Dashboard::index');
 	$routes->get('workspace/settings', 'WorkspaceController::edit');
 	$routes->post('workspace/settings', 'WorkspaceController::update');
+	$routes->post('workspace/create', 'WorkspaceController::create');
+	$routes->post('workspace/switch/(:num)', 'WorkspaceController::switch/$1');
 	$routes->get('customers', 'CustomerController::index');
 	$routes->get('customers/create', 'CustomerController::create');
 	$routes->post('customers', 'CustomerController::store');

@@ -2,6 +2,7 @@
 /**
  * @var array<string, mixed> $tenant
  * @var array<string, int> $stats
+ * @var list<array<string, mixed>> $accessibleTenants
  */
 ?>
 <?= $this->extend('layouts/app') ?>
@@ -9,6 +10,7 @@
 <?= $this->section('content') ?>
 <?php $dashboardUrl = site_url('dashboard'); ?>
 <?php $workspaceSettingsUrl = site_url('workspace/settings'); ?>
+<?php $workspaceCreateUrl = site_url('workspace/create'); ?>
 <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-4">
     <div>
         <span class="badge badge-soft px-3 py-2 mb-2">Admin workspace controls</span>
@@ -98,6 +100,59 @@
                     <h3 class="h6">Recommended next step</h3>
                     <p class="text-muted mb-0">Use the workspace slug as the base for invite URLs, subdomains, or billing records once you add those SaaS layers.</p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card page-card h-100">
+            <div class="card-body p-4 p-lg-5">
+                <h2 class="h4 mb-4">Create another workspace</h2>
+                <form action="<?= esc($workspaceCreateUrl) ?>" method="post">
+                    <?= csrf_field() ?>
+                    <div class="form-group">
+                        <label for="new_name">Workspace name</label>
+                        <input type="text" class="form-control" id="new_name" name="name" value="<?= esc(old('name')) ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_slug">Workspace slug</label>
+                        <input type="text" class="form-control" id="new_slug" name="slug" value="<?= esc(old('slug')) ?>" required>
+                        <small class="form-text text-muted">A new workspace is created under your admin account and becomes your active workspace immediately.</small>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Create workspace</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card page-card h-100">
+            <div class="card-body p-4 p-lg-5">
+                <h2 class="h4 mb-4">Your workspaces</h2>
+                <?php if ($accessibleTenants === []) : ?>
+                    <p class="text-muted mb-0">No workspaces are linked to this account yet.</p>
+                <?php endif ?>
+                <?php foreach ($accessibleTenants as $workspace) : ?>
+                    <div class="border rounded-lg p-3 mb-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="h6 mb-1"><?= esc((string) $workspace['name']) ?></h3>
+                                <p class="text-muted mb-0"><?= esc((string) $workspace['slug']) ?></p>
+                            </div>
+                            <?php if ((int) $workspace['id'] === (int) $tenant['id']) : ?>
+                                <span class="badge badge-primary">Active</span>
+                            <?php else : ?>
+                                <form action="<?= esc(site_url('workspace/switch/' . (string) $workspace['id'])) ?>" method="post" class="mb-0">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Switch</button>
+                                </form>
+                            <?php endif ?>
+                        </div>
+                    </div>
+                <?php endforeach ?>
             </div>
         </div>
     </div>

@@ -60,6 +60,7 @@ abstract class BaseController extends Controller
         }
 
         service('renderer')->setVar('currentTenant', $this->currentTenant);
+        service('renderer')->setVar('accessibleTenants', $this->currentUser === null ? [] : $this->accessibleTenants());
 
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
@@ -184,6 +185,31 @@ abstract class BaseController extends Controller
     }
 
     /**
+     * @return list<array<string, mixed>>
+     */
+    protected function accessibleTenants(): array
+    {
+        if ($this->currentUser === null) {
+            return [];
+        }
+
+        return array_values(db_connect()->table('tenant_users')
+            ->select('tenants.id, tenants.name, tenants.slug')
+            ->join('tenants', 'tenants.id = tenant_users.tenant_id')
+            ->where('tenant_users.user_id', $this->currentUser->id)
+            ->orderBy('tenants.name', 'ASC')
+            ->get()
+            ->getResultArray());
+    }
+
+    protected function setActiveTenant(int $tenantId): void
+    {
+        session()->set('active_tenant_id', $tenantId);
+        $this->currentTenant = $this->resolveCurrentTenant();
+        service('renderer')->setVar('currentTenant', $this->currentTenant);
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     private function resolveCurrentTenant(): ?array
@@ -192,12 +218,32 @@ abstract class BaseController extends Controller
             return null;
         }
 
-        return db_connect()->table('tenant_users')
+        $builder = db_connect()->table('tenant_users')
             ->select('tenants.id, tenants.name, tenants.slug')
             ->join('tenants', 'tenants.id = tenant_users.tenant_id')
-            ->where('tenant_users.user_id', $this->currentUser->id)
+            ->where('tenant_users.user_id', $this->currentUser->id);
+
+        $requestedTenantId = (int) session('active_tenant_id');
+        if ($requestedTenantId > 0) {
+            $selectedTenant = (clone $builder)
+                ->where('tenant_users.tenant_id', $requestedTenantId)
+                ->get()
+                ->getRowArray();
+
+            if ($selectedTenant !== null) {
+                return $selectedTenant;
+            }
+        }
+
+        $defaultTenant = $builder
             ->orderBy('tenant_users.id', 'ASC')
             ->get()
             ->getRowArray();
+
+        if ($defaultTenant !== null) {
+            session()->set('active_tenant_id', (int) $defaultTenant['id']);
+        }
+
+        return $defaultTenant;
     }
 }

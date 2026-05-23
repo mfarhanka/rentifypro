@@ -19,8 +19,9 @@ class WorkspaceController extends BaseController
         }
 
         return view('workspace/settings', [
-            'tenant' => $tenant,
-            'stats'  => $this->workspaceStats((int) $tenant['id']),
+            'tenant'             => $tenant,
+            'stats'              => $this->workspaceStats((int) $tenant['id']),
+            'accessibleTenants'  => $this->accessibleTenants(),
         ]);
     }
 
@@ -54,11 +55,74 @@ class WorkspaceController extends BaseController
         return redirect()->to(site_url('workspace/settings'))->with('message', 'Workspace settings updated.');
     }
 
+    public function create(): RedirectResponse
+    {
+        if ($redirect = $this->requireGroups(['admin'])) {
+            return $redirect;
+        }
+
+        $input = $this->request->getPost(['name', 'slug']);
+        $errors = $this->validateWorkspaceInput($input);
+
+        if ($errors !== []) {
+            return redirect()->back()->withInput()->with('errors', $errors);
+        }
+
+        $db = db_connect();
+        $timestamp = date('Y-m-d H:i:s');
+        $db->transStart();
+
+        $db->table('tenants')->insert([
+            'name'       => trim((string) $input['name']),
+            'slug'       => strtolower(trim((string) $input['slug'])),
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
+        ]);
+
+        $tenantId = (int) $db->insertID();
+
+        $db->table('tenant_users')->insert([
+            'tenant_id'  => $tenantId,
+            'user_id'    => $this->user()->id,
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
+        ]);
+
+        $db->transComplete();
+
+        $this->setActiveTenant($tenantId);
+
+        return redirect()->to(site_url('workspace/settings'))->with('message', 'Workspace created and selected.');
+    }
+
+    public function switch(int $id): RedirectResponse
+    {
+        if ($redirect = $this->requireGroups(['admin'])) {
+            return $redirect;
+        }
+
+        $target = null;
+        foreach ($this->accessibleTenants() as $tenant) {
+            if ((int) $tenant['id'] === $id) {
+                $target = $tenant;
+                break;
+            }
+        }
+
+        if ($target === null) {
+            return redirect()->to(site_url('workspace/settings'))->with('error', 'Workspace not found for your account.');
+        }
+
+        $this->setActiveTenant($id);
+
+        return redirect()->to(site_url('workspace/settings'))->with('message', 'Switched workspace to ' . $target['name'] . '.');
+    }
+
     /**
      * @param array<string, mixed> $input
      * @return array<string, string>
      */
-    private function validateWorkspaceInput(array $input, int $tenantId): array
+    private function validateWorkspaceInput(array $input, ?int $tenantId = null): array
     {
         $rules = [
             'name' => 'required|min_length[3]|max_length[120]',
@@ -74,12 +138,15 @@ class WorkspaceController extends BaseController
         $slug = strtolower(trim((string) ($input['slug'] ?? '')));
 
         if ($slug !== '') {
-            $existing = db_connect()->table('tenants')
+            $builder = db_connect()->table('tenants')
                 ->select('id')
-                ->where('slug', $slug)
-                ->where('id !=', $tenantId)
-                ->get()
-                ->getRowArray();
+                ->where('slug', $slug);
+
+            if ($tenantId !== null) {
+                $builder->where('id !=', $tenantId);
+            }
+
+            $existing = $builder->get()->getRowArray();
 
             if ($existing !== null) {
                 $errors['slug'] = 'That workspace slug is already in use.';
