@@ -157,6 +157,23 @@ class CustomerController extends BaseController
         return redirect()->to(site_url('customers'))->with('message', 'New setup link generated: ' . $this->setupUrl($setupToken));
     }
 
+    public function delete(int $id): RedirectResponse
+    {
+        if ($redirect = $this->requireGroups(['admin', 'staff'])) {
+            return $redirect;
+        }
+
+        $customer = $this->findCustomer($id);
+
+        if ($customer === null) {
+            return redirect()->to(site_url('customers'))->with('error', 'Customer account not found.');
+        }
+
+        db_connect()->table('users')->delete(['id' => $customer['id']]);
+
+        return redirect()->to(site_url('customers'))->with('message', 'Customer account removed.');
+    }
+
     /**
      * @param array<string, mixed> $input
      * @return array<string, string>
@@ -221,6 +238,7 @@ class CustomerController extends BaseController
             ->join('auth_groups_users', 'auth_groups_users.user_id = users.id')
             ->join('customer_contacts', 'customer_contacts.user_id = users.id', 'left')
             ->where('auth_groups_users.group', 'customer')
+            ->where('users.deleted_at', null)
             ->orderBy('users.username', 'ASC')
             ->get()
             ->getResultArray();
@@ -256,6 +274,22 @@ class CustomerController extends BaseController
         }
 
         return $contact;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function findCustomer(int $id): ?array
+    {
+        return db_connect()
+            ->table('users')
+            ->select('users.id')
+            ->join('auth_groups_users', 'auth_groups_users.user_id = users.id')
+            ->where('users.id', $id)
+            ->where('auth_groups_users.group', 'customer')
+            ->where('users.deleted_at', null)
+            ->get()
+            ->getRowArray();
     }
 
     private function normalizeEmail(string $email): string

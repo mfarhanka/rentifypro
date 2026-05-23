@@ -38,6 +38,7 @@
                     <?php foreach ($customers as $customer) : ?>
                         <?php $setupUrl = $customer['setup_token'] ? site_url('customers/setup/' . (string) $customer['setup_token']) : null; ?>
                         <?php $regenerateUrl = site_url('customers/' . (string) $customer['id'] . '/setup-link'); ?>
+                        <?php $deleteUrl = site_url('customers/' . (string) $customer['id'] . '/delete'); ?>
                         <?php $whatsAppUrl = $customer['phone'] && $setupUrl ? 'https://wa.me/' . preg_replace('/\D+/', '', (string) $customer['phone']) . '?text=' . rawurlencode('Create your Rentify Pro password: ' . $setupUrl) : null; ?>
                         <tr>
                             <td><?= esc((string) $customer['username']) ?></td>
@@ -67,9 +68,12 @@
                                         <?= csrf_field() ?>
                                         <button type="submit" class="btn btn-sm btn-outline-warning">Regenerate</button>
                                     </form>
-                                <?php else : ?>
-                                    <span class="text-muted small">No action needed</span>
                                 <?php endif ?>
+
+                                <form action="<?= esc($deleteUrl) ?>" method="post" class="d-inline-block mb-1" onsubmit="return confirm('Remove this customer account?');">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
                             </td>
                             <td><?= esc($customer['last_active'] ? (string) $customer['last_active'] : 'Never') ?></td>
                             <td><?= esc((string) $customer['created_at']) ?></td>
