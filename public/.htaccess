@@ -16,6 +16,10 @@ Options -Indexes
 	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
 	RewriteBase /rentifypro/public/
 
+	# Redirect direct /public URLs to the canonical project root path.
+	RewriteCond %{THE_REQUEST} \s/+(.*/)?public(?:/([^?\s#]*))?(?:[?#\s]|$) [NC]
+	RewriteRule ^(.*)$ /rentifypro/$1 [R=301,L]
+
 	# Redirect front-controller URLs to the clean route.
 	RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.php(?:[/?#\s]|$) [NC]
 	RewriteRule ^index\.php/?(.*)$ $1 [R=301,L]
