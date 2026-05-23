@@ -58,6 +58,7 @@
 <?php $dashboardUrl = site_url('dashboard'); ?>
 <?php $customersUrl = site_url('customers'); ?>
 <?php $staffUrl = site_url('staff'); ?>
+<?php $workspaceSettingsUrl = site_url('workspace/settings'); ?>
 <?php $gadgetsUrl = site_url('gadgets'); ?>
 <?php $rentalsUrl = site_url('rentals'); ?>
 <?php $newRentalUrl = site_url('rentals/create'); ?>
@@ -88,6 +89,7 @@
                 <?php endif ?>
                 <?php if ($user !== null && $user->inGroup('admin')) : ?>
                     <li class="nav-item"><a class="nav-link" href="<?= esc($staffUrl) ?>">Staff</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= esc($workspaceSettingsUrl) ?>">Workspace</a></li>
                 <?php endif ?>
                 <li class="nav-item"><a class="nav-link" href="<?= esc($gadgetsUrl) ?>">Gadgets</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= esc($rentalsUrl) ?>">Rentals</a></li>

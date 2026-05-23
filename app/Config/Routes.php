@@ -15,6 +15,8 @@ service('auth')->routes($routes);
 
 $routes->group('', ['filter' => 'session'], static function ($routes) {
 	$routes->get('dashboard', 'Dashboard::index');
+	$routes->get('workspace/settings', 'WorkspaceController::edit');
+	$routes->post('workspace/settings', 'WorkspaceController::update');
 	$routes->get('customers', 'CustomerController::index');
 	$routes->get('customers/create', 'CustomerController::create');
 	$routes->post('customers', 'CustomerController::store');
