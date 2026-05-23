@@ -62,6 +62,7 @@
 <?php $rentalsUrl = site_url('rentals'); ?>
 <?php $newRentalUrl = site_url('rentals/create'); ?>
 <?php $logoutUrl = site_url('logout'); ?>
+<?php $workspaceName = $currentTenant['name'] ?? 'No workspace'; ?>
 <?php if ($user !== null) : ?>
     <?php if ($user->inGroup('admin')) : ?>
         <?php $role = 'Admin'; ?>
@@ -95,6 +96,7 @@
                 <?php endif ?>
             </ul>
             <span class="navbar-text text-light mr-3">
+                <span class="badge badge-soft mr-2"><?= esc($workspaceName) ?></span>
                 <?= esc($user?->username ?? 'Guest') ?> <span class="badge badge-light"><?= esc($role) ?></span>
             </span>
             <?php if ($user !== null) : ?>

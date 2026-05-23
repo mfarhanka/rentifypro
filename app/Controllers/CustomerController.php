@@ -57,7 +57,12 @@ class CustomerController extends BaseController
         $createdUser = $userModel->find($userModel->getInsertID());
         $createdUser?->syncGroups('customer');
 
+        if ($createdUser !== null) {
+            $this->assignUserToCurrentTenant((int) $createdUser->id);
+        }
+
         db_connect()->table('customer_contacts')->insert([
+            'tenant_id'       => $this->tenantId(),
             'user_id'         => $createdUser?->id,
             'email'           => $email !== '' ? $email : null,
             'phone'           => $phone !== '' ? $phone : null,
@@ -169,7 +174,25 @@ class CustomerController extends BaseController
             return redirect()->to(site_url('customers'))->with('error', 'Customer account not found.');
         }
 
-        db_connect()->table('users')->delete(['id' => $customer['id']]);
+        $tenantId    = $this->tenantId();
+        $tenantCount = $this->userTenantCount((int) $customer['id']);
+        $db          = db_connect();
+
+        $db->transStart();
+        $db->table('tenant_users')->delete([
+            'tenant_id' => $tenantId,
+            'user_id'   => $customer['id'],
+        ]);
+        $db->table('customer_contacts')->delete([
+            'tenant_id' => $tenantId,
+            'user_id'   => $customer['id'],
+        ]);
+
+        if ($tenantCount <= 1) {
+            $db->table('users')->delete(['id' => $customer['id']]);
+        }
+
+        $db->transComplete();
 
         return redirect()->to(site_url('customers'))->with('message', 'Customer account removed.');
     }
@@ -232,12 +255,19 @@ class CustomerController extends BaseController
      */
     private function customerRows(): array
     {
+        $tenantId = $this->tenantId();
+
+        if ($tenantId === null) {
+            return [];
+        }
+
         $rows = db_connect()
             ->table('users')
             ->select('users.id, users.username, users.active, users.last_active, users.created_at, customer_contacts.email, customer_contacts.phone, customer_contacts.setup_token, customer_contacts.password_set_at')
             ->join('auth_groups_users', 'auth_groups_users.user_id = users.id')
             ->join('customer_contacts', 'customer_contacts.user_id = users.id', 'left')
             ->where('auth_groups_users.group', 'customer')
+            ->where('customer_contacts.tenant_id', $tenantId)
             ->where('users.deleted_at', null)
             ->orderBy('users.username', 'ASC')
             ->get()
@@ -251,8 +281,15 @@ class CustomerController extends BaseController
      */
     private function customerContactByUserId(int $userId): ?array
     {
+        $tenantId = $this->tenantId();
+
+        if ($tenantId === null) {
+            return null;
+        }
+
         return db_connect()->table('customer_contacts')
             ->select('id, user_id, email, phone, setup_token, password_set_at')
+            ->where('tenant_id', $tenantId)
             ->where('user_id', $userId)
             ->get()
             ->getRowArray();
@@ -281,12 +318,20 @@ class CustomerController extends BaseController
      */
     private function findCustomer(int $id): ?array
     {
+        $tenantId = $this->tenantId();
+
+        if ($tenantId === null) {
+            return null;
+        }
+
         return db_connect()
             ->table('users')
             ->select('users.id')
             ->join('auth_groups_users', 'auth_groups_users.user_id = users.id')
+            ->join('customer_contacts', 'customer_contacts.user_id = users.id')
             ->where('users.id', $id)
             ->where('auth_groups_users.group', 'customer')
+            ->where('customer_contacts.tenant_id', $tenantId)
             ->where('users.deleted_at', null)
             ->get()
             ->getRowArray();

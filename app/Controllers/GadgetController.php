@@ -7,13 +7,17 @@ use CodeIgniter\HTTP\RedirectResponse;
 
 class GadgetController extends BaseController
 {
-    public function index(): string
+    public function index(): string|RedirectResponse
     {
+        if ($redirect = $this->requireTenant()) {
+            return $redirect;
+        }
+
         $gadgetModel = model(GadgetModel::class);
 
         return view('gadgets/index', [
             'role'    => $this->primaryRole(),
-            'gadgets' => $gadgetModel->orderBy('name', 'ASC')->findAll(),
+            'gadgets' => $gadgetModel->forTenant((int) $this->tenantId())->orderBy('name', 'ASC')->findAll(),
         ]);
     }
 
@@ -52,6 +56,7 @@ class GadgetController extends BaseController
         $stock       = (int) $this->request->getPost('stock');
         $gadgetModel = model(GadgetModel::class);
         $gadgetModel->insert([
+            'tenant_id'       => $this->tenantId(),
             'code'            => strtoupper((string) $this->request->getPost('code')),
             'name'            => (string) $this->request->getPost('name'),
             'brand'           => (string) $this->request->getPost('brand'),
@@ -71,7 +76,7 @@ class GadgetController extends BaseController
         }
 
         $gadgetModel = model(GadgetModel::class);
-        $gadget      = $gadgetModel->find($id);
+        $gadget      = $gadgetModel->forTenant((int) $this->tenantId())->find($id);
 
         if ($gadget === null) {
             return redirect()->to(site_url('gadgets'))->with('error', 'Gadget not found.');
@@ -91,7 +96,7 @@ class GadgetController extends BaseController
         }
 
         $gadgetModel = model(GadgetModel::class);
-        $gadget      = $gadgetModel->find($id);
+        $gadget      = $gadgetModel->forTenant((int) $this->tenantId())->find($id);
 
         if ($gadget === null) {
             return redirect()->to(site_url('gadgets'))->with('error', 'Gadget not found.');

@@ -6,9 +6,9 @@
 <div class="row no-gutters auth-shell align-items-stretch">
     <div class="col-lg-5 d-none d-lg-flex brand-panel align-items-center justify-content-center p-5">
         <div class="col-10">
-            <p class="text-uppercase mb-3">Customer Portal</p>
-            <h1 class="display-4 font-weight-bold mb-4">Start renting the gadgets you need.</h1>
-            <p class="lead mb-0">Customers can register, place rental requests, and download invoices after approval.</p>
+            <p class="text-uppercase mb-3">Customer Workspace</p>
+            <h1 class="display-4 font-weight-bold mb-4">Join your rental workspace and request the gear you need.</h1>
+            <p class="lead mb-0">Customers can sign in, submit rental requests, and download invoices inside their team's workspace.</p>
         </div>
     </div>
     <div class="col-lg-7 d-flex align-items-center justify-content-center p-4 p-lg-5">

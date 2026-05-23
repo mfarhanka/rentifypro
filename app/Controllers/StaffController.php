@@ -56,6 +56,10 @@ class StaffController extends BaseController
         $createdUser = $userModel->findByCredentials(['email' => strtolower((string) $input['email'])]);
         $createdUser?->syncGroups('staff');
 
+        if ($createdUser !== null) {
+            $this->assignUserToCurrentTenant((int) $createdUser->id);
+        }
+
         return redirect()->to(site_url('staff'))->with('message', 'Staff account created.');
     }
 
@@ -147,7 +151,21 @@ class StaffController extends BaseController
             return redirect()->to(site_url('staff'))->with('error', 'Staff member not found.');
         }
 
-        model(UserModel::class)->delete($staffMember->id, true);
+        $tenantId    = $this->tenantId();
+        $tenantCount = $this->userTenantCount((int) $staffMember->id);
+        $db          = db_connect();
+
+        $db->transStart();
+        $db->table('tenant_users')->delete([
+            'tenant_id' => $tenantId,
+            'user_id'   => $staffMember->id,
+        ]);
+
+        if ($tenantCount <= 1) {
+            model(UserModel::class)->delete($staffMember->id, true);
+        }
+
+        $db->transComplete();
 
         return redirect()->to(site_url('staff'))->with('message', 'Staff account removed.');
     }
@@ -203,7 +221,7 @@ class StaffController extends BaseController
     {
         $user = model(UserModel::class)->withGroups()->find($id);
 
-        if (! $user instanceof User || ! $user->inGroup('staff')) {
+        if (! $user instanceof User || ! $user->inGroup('staff') || ! $this->userBelongsToCurrentTenant($id)) {
             return null;
         }
 
@@ -215,12 +233,20 @@ class StaffController extends BaseController
      */
     private function staffRows(): array
     {
+        $tenantId = $this->tenantId();
+
+        if ($tenantId === null) {
+            return [];
+        }
+
         $rows = db_connect()
             ->table('users')
             ->select('users.id, users.username, users.active, users.last_active, users.created_at, auth_identities.secret AS email')
             ->join('auth_groups_users', 'auth_groups_users.user_id = users.id')
             ->join('auth_identities', "auth_identities.user_id = users.id AND auth_identities.type = 'email_password'", 'left')
+            ->join('tenant_users', 'tenant_users.user_id = users.id')
             ->where('auth_groups_users.group', 'staff')
+            ->where('tenant_users.tenant_id', $tenantId)
             ->orderBy('users.username', 'ASC')
             ->get()
             ->getResultArray();

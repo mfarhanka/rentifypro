@@ -10,11 +10,15 @@ use Exception;
 
 class RentalController extends BaseController
 {
-    public function index(): string
+    public function index(): string|RedirectResponse
     {
+        if ($redirect = $this->requireTenant()) {
+            return $redirect;
+        }
+
         $rentalModel = model(RentalModel::class);
         $role        = $this->primaryRole();
-        $query       = $rentalModel->detailedQuery()->orderBy('rentals.created_at', 'DESC');
+        $query       = $rentalModel->detailedQuery((int) $this->tenantId())->orderBy('rentals.created_at', 'DESC');
 
         if ($role === 'customer') {
             $query->where('rentals.customer_id', $this->user()->id);
@@ -36,7 +40,7 @@ class RentalController extends BaseController
         $selectedId  = (int) ($this->request->getGet('gadget') ?? 0);
 
         return view('rentals/create', [
-            'gadgets'    => $gadgetModel->where('available_stock >', 0)->orderBy('name', 'ASC')->findAll(),
+            'gadgets'    => $gadgetModel->forTenant((int) $this->tenantId())->where('available_stock >', 0)->orderBy('name', 'ASC')->findAll(),
             'selectedId' => $selectedId,
         ]);
     }
@@ -61,7 +65,7 @@ class RentalController extends BaseController
 
         $gadgetModel = model(GadgetModel::class);
         $rentalModel = model(RentalModel::class);
-        $gadget      = $gadgetModel->find((int) $this->request->getPost('gadget_id'));
+        $gadget      = $gadgetModel->forTenant((int) $this->tenantId())->find((int) $this->request->getPost('gadget_id'));
 
         if ($gadget === null) {
             return redirect()->back()->withInput()->with('error', 'Selected gadget was not found.');
@@ -90,6 +94,7 @@ class RentalController extends BaseController
         $db->transStart();
 
         $rentalModel->insert([
+            'tenant_id'      => $this->tenantId(),
             'invoice_number' => $this->generateInvoiceNumber(),
             'gadget_id'      => $gadget['id'],
             'customer_id'    => $this->user()->id,
@@ -125,13 +130,13 @@ class RentalController extends BaseController
 
         $rentalModel = model(RentalModel::class);
         $gadgetModel = model(GadgetModel::class);
-        $rental      = $rentalModel->find($id);
+        $rental      = $rentalModel->forTenant((int) $this->tenantId())->find($id);
 
         if ($rental === null) {
             return redirect()->to(site_url('rentals'))->with('error', 'Rental not found.');
         }
 
-        $gadget = $gadgetModel->find($rental['gadget_id']);
+        $gadget = $gadgetModel->forTenant((int) $this->tenantId())->find($rental['gadget_id']);
         if ($gadget === null) {
             return redirect()->to(site_url('rentals'))->with('error', 'Related gadget not found.');
         }
@@ -173,8 +178,12 @@ class RentalController extends BaseController
 
     public function invoice(int $id): string|RedirectResponse
     {
+        if ($redirect = $this->requireTenant()) {
+            return $redirect;
+        }
+
         $rentalModel = model(RentalModel::class);
-        $rental      = $rentalModel->detailedQuery()
+        $rental      = $rentalModel->detailedQuery((int) $this->tenantId())
             ->select('rentals.*, gadgets.name AS gadget_name, gadgets.brand AS gadget_brand, gadgets.code AS gadget_code, users.username AS customer_name')
             ->where('rentals.id', $id)
             ->first();

@@ -6,9 +6,9 @@
 <div class="row no-gutters auth-shell align-items-stretch">
     <div class="col-lg-6 d-none d-lg-flex brand-panel align-items-center justify-content-center p-5">
         <div class="col-10">
-            <p class="text-uppercase mb-3">Rentify Pro</p>
-            <h1 class="display-4 font-weight-bold mb-4">Rental tracking for gadgets, staff, and invoices.</h1>
-            <p class="lead mb-0">Sign in to manage device availability, customer rentals, and printable invoices from one dashboard.</p>
+            <p class="text-uppercase mb-3">Rentify Pro Cloud</p>
+            <h1 class="display-4 font-weight-bold mb-4">Run your rental workspace from one shared SaaS dashboard.</h1>
+            <p class="lead mb-0">Sign in to manage inventory, staff, customer rentals, and invoices inside your team's workspace.</p>
         </div>
     </div>
     <div class="col-lg-6 d-flex align-items-center justify-content-center p-4 p-lg-5">
@@ -56,7 +56,7 @@
                 <?php if (setting('Auth.allowRegistration')) : ?>
                     <p class="text-muted text-center mt-4 mb-0">Need an account? <a href="<?= url_to('register') ?>">Create one</a></p>
                 <?php endif ?>
-                <p class="text-muted text-center mt-2 mb-0">If staff created your account, use the setup link they shared to create your password first.</p>
+                <p class="text-muted text-center mt-2 mb-0">If your team invited you, use the workspace setup link they shared to create your password first.</p>
             </div>
         </div>
     </div>

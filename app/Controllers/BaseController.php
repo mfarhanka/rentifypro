@@ -30,6 +30,11 @@ abstract class BaseController extends Controller
     protected ?User $currentUser = null;
 
     /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $currentTenant = null;
+
+    /**
      * Be sure to declare properties for any property fetch you initialized.
      * The creation of dynamic property is deprecated in PHP 8.2.
      */
@@ -50,6 +55,12 @@ abstract class BaseController extends Controller
 
         $this->currentUser = auth()->user();
 
+        if ($this->currentUser !== null) {
+            $this->currentTenant = $this->resolveCurrentTenant();
+        }
+
+        service('renderer')->setVar('currentTenant', $this->currentTenant);
+
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
     }
@@ -57,6 +68,19 @@ abstract class BaseController extends Controller
     protected function user(): ?User
     {
         return $this->currentUser;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function tenant(): ?array
+    {
+        return $this->currentTenant;
+    }
+
+    protected function tenantId(): ?int
+    {
+        return $this->currentTenant === null ? null : (int) $this->currentTenant['id'];
     }
 
     protected function primaryRole(): string
@@ -83,6 +107,10 @@ abstract class BaseController extends Controller
             return redirect()->to(site_url('login'));
         }
 
+        if ($this->tenantId() === null) {
+            return redirect()->to(site_url('/'))->with('error', 'Your account is not assigned to a workspace.');
+        }
+
         foreach ($groups as $group) {
             if ($this->currentUser->inGroup($group)) {
                 return null;
@@ -90,5 +118,86 @@ abstract class BaseController extends Controller
         }
 
         return redirect()->to(site_url('dashboard'))->with('error', 'You do not have access to that page.');
+    }
+
+    protected function requireTenant(): ?RedirectResponse
+    {
+        if ($this->currentUser === null) {
+            return redirect()->to(site_url('login'));
+        }
+
+        if ($this->tenantId() === null) {
+            return redirect()->to(site_url('/'))->with('error', 'Your account is not assigned to a workspace.');
+        }
+
+        return null;
+    }
+
+    protected function assignUserToCurrentTenant(int $userId): void
+    {
+        $tenantId = $this->tenantId();
+
+        if ($tenantId === null) {
+            return;
+        }
+
+        $existing = db_connect()->table('tenant_users')
+            ->select('id')
+            ->where('tenant_id', $tenantId)
+            ->where('user_id', $userId)
+            ->get()
+            ->getRowArray();
+
+        if ($existing !== null) {
+            return;
+        }
+
+        db_connect()->table('tenant_users')->insert([
+            'tenant_id'   => $tenantId,
+            'user_id'     => $userId,
+            'created_at'  => date('Y-m-d H:i:s'),
+            'updated_at'  => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    protected function userBelongsToCurrentTenant(int $userId): bool
+    {
+        $tenantId = $this->tenantId();
+
+        if ($tenantId === null) {
+            return false;
+        }
+
+        return db_connect()->table('tenant_users')
+            ->select('id')
+            ->where('tenant_id', $tenantId)
+            ->where('user_id', $userId)
+            ->get()
+            ->getRowArray() !== null;
+    }
+
+    protected function userTenantCount(int $userId): int
+    {
+        return db_connect()->table('tenant_users')
+            ->where('user_id', $userId)
+            ->countAllResults();
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function resolveCurrentTenant(): ?array
+    {
+        if ($this->currentUser === null) {
+            return null;
+        }
+
+        return db_connect()->table('tenant_users')
+            ->select('tenants.id, tenants.name, tenants.slug')
+            ->join('tenants', 'tenants.id = tenant_users.tenant_id')
+            ->where('tenant_users.user_id', $this->currentUser->id)
+            ->orderBy('tenant_users.id', 'ASC')
+            ->get()
+            ->getRowArray();
     }
 }

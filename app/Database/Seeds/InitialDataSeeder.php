@@ -12,9 +12,31 @@ class InitialDataSeeder extends Seeder
 {
     public function run()
     {
+        $db          = db_connect();
         $userModel   = model(UserModel::class);
         $gadgetModel = model(GadgetModel::class);
         $rentalModel = model(RentalModel::class);
+
+        $tenant = $db->table('tenants')
+            ->select('id')
+            ->where('slug', 'rentifypro-default')
+            ->get()
+            ->getRowArray();
+
+        if ($tenant === null) {
+            $db->table('tenants')->insert([
+                'name'       => 'Rentify Pro Demo Workspace',
+                'slug'       => 'rentifypro-default',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            $tenant = [
+                'id' => $db->insertID(),
+            ];
+        }
+
+        $tenantId = (int) $tenant['id'];
 
         $accounts = [
             ['username' => 'admin', 'email' => 'admin@rentifypro.test', 'password' => 'password123', 'group' => 'admin'],
@@ -40,11 +62,30 @@ class InitialDataSeeder extends Seeder
             if ($user !== null && ! $user->inGroup($account['group'])) {
                 $user->addGroup($account['group']);
             }
+
+            if ($user !== null) {
+                $membership = $db->table('tenant_users')
+                    ->select('id')
+                    ->where('tenant_id', $tenantId)
+                    ->where('user_id', $user->id)
+                    ->get()
+                    ->getRowArray();
+
+                if ($membership === null) {
+                    $db->table('tenant_users')->insert([
+                        'tenant_id'   => $tenantId,
+                        'user_id'     => $user->id,
+                        'created_at'  => date('Y-m-d H:i:s'),
+                        'updated_at'  => date('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
         }
 
-        if ($gadgetModel->countAllResults() === 0) {
+        if ($gadgetModel->where('tenant_id', $tenantId)->countAllResults() === 0) {
             $gadgetModel->insertBatch([
                 [
+                    'tenant_id'        => $tenantId,
                     'code'            => 'CAM-001',
                     'name'            => 'Canon EOS M50',
                     'brand'           => 'Canon',
@@ -54,6 +95,7 @@ class InitialDataSeeder extends Seeder
                     'description'     => 'Mirrorless camera kit for content creators.',
                 ],
                 [
+                    'tenant_id'        => $tenantId,
                     'code'            => 'DRN-002',
                     'name'            => 'DJI Mini 4 Pro',
                     'brand'           => 'DJI',
@@ -63,6 +105,7 @@ class InitialDataSeeder extends Seeder
                     'description'     => 'Compact drone with 4K recording and spare battery.',
                 ],
                 [
+                    'tenant_id'        => $tenantId,
                     'code'            => 'CON-003',
                     'name'            => 'PlayStation 5',
                     'brand'           => 'Sony',
@@ -75,10 +118,31 @@ class InitialDataSeeder extends Seeder
         }
 
         $customer = $userModel->findByCredentials(['email' => 'customer@rentifypro.test']);
-        $gadget   = $gadgetModel->first();
+        $gadget   = $gadgetModel->where('tenant_id', $tenantId)->first();
 
-        if ($customer !== null && $gadget !== null && $rentalModel->countAllResults() === 0) {
+        if ($customer !== null) {
+            $contact = $db->table('customer_contacts')
+                ->select('id')
+                ->where('user_id', $customer->id)
+                ->get()
+                ->getRowArray();
+
+            if ($contact === null) {
+                $db->table('customer_contacts')->insert([
+                    'tenant_id'    => $tenantId,
+                    'user_id'      => $customer->id,
+                    'email'        => 'customer@rentifypro.test',
+                    'phone'        => null,
+                    'setup_token'  => null,
+                    'created_at'   => date('Y-m-d H:i:s'),
+                    'updated_at'   => date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+
+        if ($customer !== null && $gadget !== null && $rentalModel->where('tenant_id', $tenantId)->countAllResults() === 0) {
             $rentalModel->insert([
+                'tenant_id'      => $tenantId,
                 'invoice_number' => 'INV-DEMO-1001',
                 'gadget_id'      => $gadget['id'],
                 'customer_id'    => $customer->id,

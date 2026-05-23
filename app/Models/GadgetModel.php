@@ -11,6 +11,7 @@ class GadgetModel extends Model
     protected $returnType       = 'array';
     protected $useAutoIncrement = true;
     protected $allowedFields    = [
+        'tenant_id',
         'code',
         'name',
         'brand',
@@ -20,4 +21,9 @@ class GadgetModel extends Model
         'description',
     ];
     protected $useTimestamps = true;
+
+    public function forTenant(int $tenantId): self
+    {
+        return $this->where('tenant_id', $tenantId);
+    }
 }
